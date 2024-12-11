@@ -13,7 +13,7 @@ figma.ui.onmessage = async (msg) => {
     sticky.y = center.y;
     
     // Set properties for the sticky note
-    sticky.fills = [{type: 'SOLID', color: {r: 1, g: 0.8, b: 0.3}}]; // Yellow color
+    sticky.fills = [{type: 'SOLID', color: {r: 0.8, g: 1, b: 0.8}}]; // Light green color
     // Create a text sublayer for the sticky note
     await figma.loadFontAsync(sticky.text.fontName)
     // textLayer.characters = msg.text;
