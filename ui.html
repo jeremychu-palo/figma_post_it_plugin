@@ -4,7 +4,37 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            padding: 20px;
+            padding: 24px;
+            height: 600px;
+            overflow-y: auto;
+        }
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            color: #666;
+        }
+        .tab-button.active {
+            background-color: #FFD43B;
+            color: #333;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         button {
             background-color: #FFD43B;
@@ -27,37 +57,110 @@
         .icon {
             font-size: 18px;
         }
-        textarea {
+        textarea, input {
             width: 100%;
-            min-height: 60px;
             padding: 8px;
             margin-bottom: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-family: inherit;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 60px;
             resize: vertical;
         }
-        textarea:focus {
+        textarea:focus, input:focus {
             outline: none;
             border-color: #FFD43B;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 4px;
+            color: #333;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
-    <textarea id="stickyText" placeholder="Enter your sticky note text..."></textarea>
-    <button id="createShape"><span class="icon">📝</span>Add Sticky Note</button>
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="sticky">Sticky Notes</button>
+            <button class="tab-button" data-tab="settings">Settings</button>
+        </div>
+        
+        <div class="tab-content active" id="sticky-tab">
+            <textarea id="stickyText" placeholder="Enter your sticky note text..."></textarea>
+            <button id="createShape"><span class="icon">📝</span>Add Sticky Note</button>
+        </div>
+
+        <div class="tab-content" id="settings-tab">
+            <div class="form-group">
+                <label for="serviceUrl">Service URL</label>
+                <input type="url" id="serviceUrl" placeholder="Enter service URL...">
+            </div>
+            <div class="form-group">
+                <label for="apiKey">API Key</label>
+                <input type="password" id="apiKey" placeholder="Enter API key...">
+            </div>
+            <button id="saveSettings"><span class="icon">💾</span>Save Settings</button>
+        </div>
+    </div>
+
     <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                document.getElementById(`${button.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+
+        // Sticky note creation
         document.getElementById('createShape').onclick = () => {
             const text = document.getElementById('stickyText').value || "New Sticky Note";
-            console.log('Sending text to plugin:', text);
-            parent.postMessage({ 
-                pluginMessage: { 
-                    type: 'create-shape',
-                    text: text
-                } 
-            }, '*');
-            // Clear the textarea after creating the note
-            document.getElementById('stickyText').value = '';
+            parent.postMessage({ pluginMessage: { type: 'create-shape', text } }, '*');
+        };
+
+        // Settings management
+        document.getElementById('saveSettings').onclick = () => {
+            const serviceUrl = document.getElementById('serviceUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            
+            // Send settings to the plugin to save
+            parent.postMessage({ pluginMessage: { 
+                type: 'save-settings',
+                serviceUrl,
+                apiKey
+            }}, '*');
+        };
+
+        // Load saved settings on page load
+        window.addEventListener('load', () => {
+            // Request saved settings from the plugin
+            parent.postMessage({ pluginMessage: { 
+                type: 'load-settings'
+            }}, '*');
+        });
+
+        // Handle settings loaded from plugin
+        window.onmessage = (event) => {
+            const msg = event.data.pluginMessage;
+            if (!msg) return;
+
+            if (msg.type === 'settings-loaded') {
+                const { serviceUrl, apiKey } = msg;
+                if (serviceUrl) document.getElementById('serviceUrl').value = serviceUrl;
+                if (apiKey) document.getElementById('apiKey').value = apiKey;
+            }
         };
     </script>
 </body>
