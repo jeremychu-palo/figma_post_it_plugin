@@ -1,0 +1,13 @@
+{
+  "name": "Basic Figjam Plugin",
+  "id": "basic-figjam-plugin",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figjam"],
+  "ui": "ui.html",
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  }
+}
