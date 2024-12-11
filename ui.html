@@ -7,25 +7,57 @@
             padding: 20px;
         }
         button {
-            background-color: #18A0FB;
-            color: white;
+            background-color: #FFD43B;
+            color: #333;
             border: none;
             padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
             margin: 8px 0;
             width: 100%;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         button:hover {
-            background-color: #0D8DE3;
+            background-color: #FFC107;
+        }
+        .icon {
+            font-size: 18px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 60px;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #FFD43B;
         }
     </style>
 </head>
 <body>
-    <button id="createShape">Create Shape</button>
+    <textarea id="stickyText" placeholder="Enter your sticky note text..."></textarea>
+    <button id="createShape"><span class="icon">📝</span>Add Sticky Note</button>
     <script>
         document.getElementById('createShape').onclick = () => {
-            parent.postMessage({ pluginMessage: { type: 'create-shape' } }, '*');
+            const text = document.getElementById('stickyText').value || "New Sticky Note";
+            console.log('Sending text to plugin:', text);
+            parent.postMessage({ 
+                pluginMessage: { 
+                    type: 'create-shape',
+                    text: text
+                } 
+            }, '*');
+            // Clear the textarea after creating the note
+            document.getElementById('stickyText').value = '';
         };
     </script>
 </body>
