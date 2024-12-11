@@ -1,6 +1,6 @@
 {
-  "name": "Basic Figjam Plugin",
-  "id": "basic-figjam-plugin",
+  "name": "PALO Figjam Plugin",
+  "id": "palo-figjam-plugin",
   "api": "1.0.0",
   "main": "code.js",
   "capabilities": [],
