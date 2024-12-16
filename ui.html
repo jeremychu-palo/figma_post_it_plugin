@@ -95,16 +95,26 @@
         <div class="tab-content active" id="sticky-tab">
             <textarea id="stickyText" placeholder="Enter your sticky note text..."></textarea>
             <button id="createShape"><span class="icon">📝</span>Add Sticky Note</button>
+            
+            <div class="form-group" style="margin-top: 16px;">
+                <label for="transcription">Conversation Transcription</label>
+                <textarea id="transcription" placeholder="Paste your conversation transcription here..." style="min-height: 150px;"></textarea>
+                <button id="createPostIts"><span class="icon">🔄</span>Generate Post-its from Transcription</button>
+            </div>
         </div>
 
         <div class="tab-content" id="settings-tab">
             <div class="form-group">
                 <label for="serviceUrl">Service URL</label>
-                <input type="url" id="serviceUrl" placeholder="Enter service URL...">
+                <input type="text" id="serviceUrl" placeholder="Enter service URL">
             </div>
             <div class="form-group">
                 <label for="apiKey">API Key</label>
-                <input type="password" id="apiKey" placeholder="Enter API key...">
+                <input type="password" id="apiKey" placeholder="Enter API key">
+            </div>
+            <div class="form-group">
+                <label for="postItsEndpoint">Post-its Endpoint</label>
+                <input type="text" id="postItsEndpoint" placeholder="Enter create-post-its endpoint">
             </div>
             <button id="saveSettings"><span class="icon">💾</span>Save Settings</button>
         </div>
@@ -130,16 +140,31 @@
             parent.postMessage({ pluginMessage: { type: 'create-shape', text } }, '*');
         };
 
+        // Create post-its from transcription
+        document.getElementById('createPostIts').onclick = () => {
+            const transcription = document.getElementById('transcription').value;
+            if (!transcription.trim()) {
+                alert('Please enter a transcription first');
+                return;
+            }
+            parent.postMessage({ pluginMessage: { 
+                type: 'create-post-its', 
+                transcription 
+            }}, '*');
+        };
+
         // Settings management
         document.getElementById('saveSettings').onclick = () => {
             const serviceUrl = document.getElementById('serviceUrl').value;
             const apiKey = document.getElementById('apiKey').value;
+            const postItsEndpoint = document.getElementById('postItsEndpoint').value;
             
             // Send settings to the plugin to save
             parent.postMessage({ pluginMessage: { 
                 type: 'save-settings',
                 serviceUrl,
-                apiKey
+                apiKey,
+                postItsEndpoint
             }}, '*');
         };
 
@@ -157,9 +182,10 @@
             if (!msg) return;
 
             if (msg.type === 'settings-loaded') {
-                const { serviceUrl, apiKey } = msg;
+                const { serviceUrl, apiKey, postItsEndpoint } = msg;
                 if (serviceUrl) document.getElementById('serviceUrl').value = serviceUrl;
                 if (apiKey) document.getElementById('apiKey').value = apiKey;
+                if (postItsEndpoint) document.getElementById('postItsEndpoint').value = postItsEndpoint;
             }
         };
     </script>
