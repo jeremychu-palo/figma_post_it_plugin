@@ -34,6 +34,8 @@ figma.ui.onmessage = async (msg) => {
       await figma.clientStorage.setAsync('serviceUrl', msg.serviceUrl);
       await figma.clientStorage.setAsync('apiKey', msg.apiKey);
       await figma.clientStorage.setAsync('postItsEndpoint', msg.postItsEndpoint);
+      await figma.clientStorage.setAsync('username', msg.username);
+      await figma.clientStorage.setAsync('password', msg.password);
       
       // Notify UI of success and close
       figma.notify('Settings saved successfully');
@@ -42,13 +44,17 @@ figma.ui.onmessage = async (msg) => {
       const serviceUrl = await figma.clientStorage.getAsync('serviceUrl') || '';
       const apiKey = await figma.clientStorage.getAsync('apiKey') || '';
       const postItsEndpoint = await figma.clientStorage.getAsync('postItsEndpoint') || '';
+      const username = await figma.clientStorage.getAsync('username') || '';
+      const password = await figma.clientStorage.getAsync('password') || '';
       
       // Send settings back to the UI
       figma.ui.postMessage({
         type: 'settings-loaded',
         serviceUrl,
         apiKey,
-        postItsEndpoint
+        postItsEndpoint,
+        username,
+        password
       });
     } else if (msg.type === 'create-post-its') {
       try {
@@ -56,6 +62,8 @@ figma.ui.onmessage = async (msg) => {
         const serviceUrl = await figma.clientStorage.getAsync('serviceUrl');
         const apiKey = await figma.clientStorage.getAsync('apiKey');
         const postItsEndpoint = await figma.clientStorage.getAsync('postItsEndpoint');
+        const username = await figma.clientStorage.getAsync('username');
+        const password = await figma.clientStorage.getAsync('password');
         
         if (!serviceUrl || !postItsEndpoint) {
           throw new Error('Service URL and Post-its endpoint must be configured in settings');
@@ -67,6 +75,9 @@ figma.ui.onmessage = async (msg) => {
         };
         if (apiKey) {
           headers['Authorization'] = `Bearer ${apiKey}`;
+        }
+        if (username && password) {
+          headers['Authorization'] = `Basic ${btoa(`${username}:${password}`)}`;
         }
 
         const response = await fetch(`${serviceUrl}${postItsEndpoint}`, {
@@ -116,6 +127,19 @@ figma.ui.onmessage = async (msg) => {
         console.error('Error creating post-its:', error);
         figma.notify(`Error: ${error.message}`, { error: true });
       }
+    } else if (msg.type === 'save-transcript') {
+      // Save transcript using Figma's client storage
+      await figma.clientStorage.setAsync('transcript', msg.transcript);
+      figma.notify('Transcript saved successfully');
+    } else if (msg.type === 'load-transcript') {
+      // Load transcript from Figma's client storage
+      const transcript = await figma.clientStorage.getAsync('transcript') || '';
+      
+      // Send transcript back to the UI
+      figma.ui.postMessage({
+        type: 'transcript-loaded',
+        transcript
+      });
     }
   } catch (error) {
     console.error('Error in plugin:', error);
