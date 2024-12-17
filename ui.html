@@ -54,12 +54,6 @@
         button:hover {
             background-color: #FFC107;
         }
-        .utility-button {
-            background-color: #E0E0E0;
-        }
-        .utility-button:hover {
-            background-color: #BDBDBD;
-        }
         .icon {
             font-size: 18px;
         }
@@ -102,10 +96,6 @@
             <div class="form-group">
                 <label for="transcription">Post-it Notes JSON</label>
                 <textarea id="transcription" placeholder="Paste your JSON here and hit the Generate button to create Post Its" style="min-height: 150px;" oninput="saveTranscript()"></textarea>
-                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                    <button id="pasteButton" class="utility-button" style="margin: 0;"><span class="icon">📋</span>Paste from Clipboard</button>
-                    <button id="clearButton" class="utility-button" style="margin: 0;"><span class="icon">🗑️</span>Clear</button>
-                </div>
                 <button id="createPostIts"><span class="icon">🔄</span>Generate Post-its from JSON</button>
             </div>
         </div>
@@ -199,24 +189,6 @@
             parent.postMessage({ pluginMessage: { type: 'load-settings' } }, '*');
             // Request saved transcript
             parent.postMessage({ pluginMessage: { type: 'load-transcript' } }, '*');
-
-            // Setup paste button functionality
-            document.getElementById('pasteButton').onclick = async () => {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    document.getElementById('transcription').value = text;
-                    saveTranscript(); // Trigger auto-save
-                } catch (err) {
-                    console.error('Failed to read clipboard:', err);
-                    alert('Unable to access clipboard. Please make sure you have granted clipboard permissions.');
-                }
-            };
-
-            // Setup clear button functionality
-            document.getElementById('clearButton').onclick = () => {
-                document.getElementById('transcription').value = '';
-                saveTranscript(); // Trigger auto-save
-            };
         });
 
         // Handle messages from the plugin
