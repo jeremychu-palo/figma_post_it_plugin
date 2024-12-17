@@ -100,34 +100,52 @@ figma.ui.onmessage = async (msg) => {
 
         const output = jsonInput[0].output;
         
+        // Get the total number of categories for spacing calculation
+        const categories = Object.keys(output);
+        const categoryCount = categories.length;
+        const categorySpacing = 300; // Space between categories horizontally
+        const noteSpacing = 250; // Increased vertical space between notes
+        const noteHeight = 100; // Approximate height of a sticky note
+        
+        // Calculate the total width needed
+        const totalWidth = categoryCount * categorySpacing;
+        const startX = figma.viewport.center.x - (totalWidth / 2);
+        
         // Process each category
-        for (const category in output) {
+        categories.forEach((category, categoryIndex) => {
           const notes = output[category];
-          if (!Array.isArray(notes)) continue;
+          if (!Array.isArray(notes)) return;
+
+          // Calculate the x position for this category
+          const categoryX = startX + (categoryIndex * categorySpacing);
+          
+          // Calculate total height needed for this category
+          const totalHeight = notes.length * (noteHeight + noteSpacing);
+          const startY = figma.viewport.center.y - (totalHeight / 2);
 
           // Create sticky notes for each item in the category
-          for (const note of notes) {
+          notes.forEach((note, noteIndex) => {
             if (!note.text && !note.title) {
               console.warn('Skipping note without text content');
-              continue;
+              return;
             }
 
             const sticky = figma.createSticky();
             
-            // Calculate position (you can adjust the spacing as needed)
-            const center = figma.viewport.center;
-            sticky.x = center.x + (Math.random() - 0.5) * 200; // Random offset for x
-            sticky.y = center.y + (Math.random() - 0.5) * 200; // Random offset for y
+            // Position notes vertically within their category with increased spacing
+            sticky.x = categoryX;
+            sticky.y = startY + (noteIndex * (noteHeight + noteSpacing));
             
             // Set color based on category
-            const color = categoryColors[category] || categoryColors.desired_outcomes; // Default to light green if category not found
+            const color = categoryColors[category] || categoryColors.desired_outcomes;
             sticky.fills = [{type: 'SOLID', color: color}];
             
             // Set the text
-            await figma.loadFontAsync(sticky.text.fontName);
-            sticky.text.characters = note.title ? `${note.title}\n\n${note.text}` : note.text;
-          }
-        }
+            figma.loadFontAsync(sticky.text.fontName).then(() => {
+              sticky.text.characters = note.title ? `${note.title}\n\n${note.text}` : note.text;
+            });
+          });
+        });
 
         figma.notify('Created sticky notes successfully');
       } catch (error) {
