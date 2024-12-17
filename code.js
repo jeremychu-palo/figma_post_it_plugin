@@ -2,6 +2,31 @@ figma.showUI(__html__);
 
 figma.ui.resize(240, 600);
 
+// Base64 encoding function
+function base64Encode(str) {
+  const base64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let result = '';
+  let i = 0;
+  
+  while (i < str.length) {
+    const char1 = str.charCodeAt(i++);
+    const char2 = i < str.length ? str.charCodeAt(i++) : NaN;
+    const char3 = i < str.length ? str.charCodeAt(i++) : NaN;
+
+    const enc1 = char1 >> 2;
+    const enc2 = ((char1 & 3) << 4) | (char2 >> 4);
+    const enc3 = ((char2 & 15) << 2) | (char3 >> 6);
+    const enc4 = char3 & 63;
+
+    result += base64chars.charAt(enc1) +
+              base64chars.charAt(enc2) +
+              (isNaN(char2) ? '=' : base64chars.charAt(enc3)) +
+              (isNaN(char3) ? '=' : base64chars.charAt(enc4));
+  }
+  
+  return result;
+}
+
 figma.ui.onmessage = async (msg) => {
   try {
     if (msg.type === 'create-shape') {
@@ -69,60 +94,58 @@ figma.ui.onmessage = async (msg) => {
           throw new Error('Service URL and Post-its endpoint must be configured in settings');
         }
 
-        // Make the API call
+        // Make the API call using figma.request
         const headers = {
           'Content-Type': 'application/json'
         };
+        
         if (apiKey) {
           headers['Authorization'] = `Bearer ${apiKey}`;
-        }
-        if (username && password) {
-          headers['Authorization'] = `Basic ${btoa(`${username}:${password}`)}`;
-        }
-
-        const response = await fetch(`${serviceUrl}${postItsEndpoint}`, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({ transcription: msg.transcription })
-        });
-
-        if (!response.ok) {
-          throw new Error(`API call failed: ${response.statusText}`);
+        } else if (username && password) {
+          headers['Authorization'] = `Basic ${base64Encode(`${username}:${password}`)}`;
         }
 
-        const notes = await response.json();
-        
-        // Create sticky notes for each item in the response
-        const createdStickies = [];
-        const center = figma.viewport.center;
-        const spacing = 200; // pixels between sticky notes
-        
-        for (let i = 0; i < notes.length; i++) {
-          const sticky = figma.createSticky();
+        try {
+          const endpoint = `${serviceUrl}${postItsEndpoint}`;
+          const response = await figma.request(endpoint, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+              transcription: msg.transcription
+            })
+          });
+
+          const postIts = JSON.parse(response);
           
-          // Position stickies in a grid-like pattern
-          const row = Math.floor(i / 3);
-          const col = i % 3;
-          sticky.x = center.x + (col - 1) * spacing;
-          sticky.y = center.y + row * spacing;
+          if (!Array.isArray(postIts)) {
+            throw new Error('Invalid response format from server');
+          }
+
+          // Create sticky notes for each item in the response
+          for (const postIt of postIts) {
+            const sticky = figma.createSticky();
+            const center = figma.viewport.center;
+            
+            // Add some random offset to prevent complete overlap
+            sticky.x = center.x + (Math.random() - 0.5) * 200;
+            sticky.y = center.y + (Math.random() - 0.5) * 200;
+            
+            sticky.fills = [{type: 'SOLID', color: {r: 0.8, g: 1, b: 0.8}}];
+            await figma.loadFontAsync(sticky.text.fontName);
+            sticky.text.characters = postIt.text || postIt.content || '';
+          }
+
+          figma.notify('Successfully created sticky notes!');
+        } catch (error) {
+          console.error('Error creating post-its:', error);
+          figma.notify(`Error: ${error.message}`, {error: true});
           
-          // Set sticky note properties
-          sticky.fills = [{type: 'SOLID', color: {r: 1, g: 0.83, b: 0.23}}]; // Yellow color
-          
-          // Set the text
-          await figma.loadFontAsync(sticky.text.fontName);
-          sticky.text.characters = notes[i];
-          
-          createdStickies.push(sticky);
+          // Send error back to UI
+          figma.ui.postMessage({
+            type: 'error',
+            message: error.message
+          });
         }
-        
-        // Select all created sticky notes
-        figma.currentPage.selection = createdStickies;
-        
-        // Zoom to fit all created sticky notes
-        figma.viewport.scrollAndZoomIntoView(createdStickies);
-        
-        figma.notify(`Created ${notes.length} sticky notes`);
       } catch (error) {
         console.error('Error creating post-its:', error);
         figma.notify(`Error: ${error.message}`, { error: true });
