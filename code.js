@@ -31,7 +31,8 @@ function base64Encode(str) {
 const categoryColors = {
   key_features: { r: 1, g: 0.8, b: 0.8 },     // Light red
   desired_outcomes: { r: 0.8, g: 1, b: 0.8 },  // Light green
-  technical_requirements: { r: 0.8, g: 0.8, b: 1 }  // Light blue
+  technical_requirements: { r: 0.8, g: 0.8, b: 1 },  // Light blue
+  target_users: { r: 1, g: 1, b: 0.8 }  // Light yellow
 };
 
 figma.ui.onmessage = async (msg) => {
