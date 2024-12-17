@@ -94,9 +94,14 @@
         
         <div class="tab-content active" id="sticky-tab">
             <div class="form-group">
-                <label for="transcription">Conversation Transcription</label>
-                <textarea id="transcription" placeholder="Paste your conversation transcription here..." style="min-height: 150px;" oninput="saveTranscript()"></textarea>
-                <button id="createPostIts"><span class="icon">🔄</span>Generate Post-its from Transcription</button>
+                <label for="transcription">Post-it Notes JSON</label>
+                <textarea id="transcription" placeholder='{
+  "notes": [
+    {"text": "Your first note text"},
+    {"text": "Your second note text"}
+  ]
+}' style="min-height: 150px;" oninput="saveTranscript()"></textarea>
+                <button id="createPostIts"><span class="icon">🔄</span>Generate Post-its from JSON</button>
             </div>
             
             <div class="form-group" style="margin-top: 16px;">

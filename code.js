@@ -83,72 +83,43 @@ figma.ui.onmessage = async (msg) => {
       });
     } else if (msg.type === 'create-post-its') {
       try {
-        // Load the settings
-        const serviceUrl = await figma.clientStorage.getAsync('serviceUrl');
-        const apiKey = await figma.clientStorage.getAsync('apiKey');
-        const postItsEndpoint = await figma.clientStorage.getAsync('postItsEndpoint');
-        const username = await figma.clientStorage.getAsync('username');
-        const password = await figma.clientStorage.getAsync('password');
+        // Parse the JSON input
+        const jsonInput = JSON.parse(msg.transcription);
         
-        if (!serviceUrl || !postItsEndpoint) {
-          throw new Error('Service URL and Post-its endpoint must be configured in settings');
+        // Validate the JSON structure
+        if (!jsonInput.notes || !Array.isArray(jsonInput.notes)) {
+          throw new Error('Invalid JSON format. Expected {"notes": [...]}');
         }
 
-        // Make the API call using figma.request
-        const headers = {
-          'Content-Type': 'application/json'
-        };
-        
-        if (apiKey) {
-          headers['Authorization'] = `Bearer ${apiKey}`;
-        } else if (username && password) {
-          headers['Authorization'] = `Basic ${base64Encode(`${username}:${password}`)}`;
-        }
-
-        try {
-          const endpoint = `${serviceUrl}${postItsEndpoint}`;
-          const response = await figma.request(endpoint, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
-              transcription: msg.transcription
-            })
-          });
-
-          const postIts = JSON.parse(response);
-          
-          if (!Array.isArray(postIts)) {
-            throw new Error('Invalid response format from server');
+        // Create sticky notes for each item in the notes array
+        for (const note of jsonInput.notes) {
+          if (!note.text) {
+            console.warn('Skipping note without text content');
+            continue;
           }
 
-          // Create sticky notes for each item in the response
-          for (const postIt of postIts) {
-            const sticky = figma.createSticky();
-            const center = figma.viewport.center;
-            
-            // Add some random offset to prevent complete overlap
-            sticky.x = center.x + (Math.random() - 0.5) * 200;
-            sticky.y = center.y + (Math.random() - 0.5) * 200;
-            
-            sticky.fills = [{type: 'SOLID', color: {r: 0.8, g: 1, b: 0.8}}];
-            await figma.loadFontAsync(sticky.text.fontName);
-            sticky.text.characters = postIt.text || postIt.content || '';
-          }
-
-          figma.notify('Successfully created sticky notes!');
-        } catch (error) {
-          console.error('Error creating post-its:', error);
-          figma.notify(`Error: ${error.message}`, {error: true});
+          const sticky = figma.createSticky();
+          const center = figma.viewport.center;
           
-          // Send error back to UI
-          figma.ui.postMessage({
-            type: 'error',
-            message: error.message
-          });
+          // Add some random offset to prevent complete overlap
+          sticky.x = center.x + (Math.random() - 0.5) * 200;
+          sticky.y = center.y + (Math.random() - 0.5) * 200;
+          
+          sticky.fills = [{type: 'SOLID', color: {r: 0.8, g: 1, b: 0.8}}];
+          await figma.loadFontAsync(sticky.text.fontName);
+          sticky.text.characters = note.text;
         }
+
+        figma.notify('Successfully created sticky notes!');
       } catch (error) {
         console.error('Error creating post-its:', error);
         figma.notify(`Error: ${error.message}`, { error: true });
+        
+        // Send error back to UI
+        figma.ui.postMessage({
+          type: 'error',
+          message: error.message
+        });
       }
     } else if (msg.type === 'save-transcript') {
       // Save transcript using Figma's client storage
