@@ -27,6 +27,13 @@ function base64Encode(str) {
   return result;
 }
 
+// Color mapping for different categories
+const categoryColors = {
+  key_features: { r: 1, g: 0.8, b: 0.8 },     // Light red
+  desired_outcomes: { r: 0.8, g: 1, b: 0.8 },  // Light green
+  technical_requirements: { r: 0.8, g: 0.8, b: 1 }  // Light blue
+};
+
 figma.ui.onmessage = async (msg) => {
   try {
     if (msg.type === 'create-shape') {
@@ -39,7 +46,7 @@ figma.ui.onmessage = async (msg) => {
       sticky.y = center.y;
       
       // Set properties for the sticky note
-      sticky.fills = [{type: 'SOLID', color: {r: 0.8, g: 1, b: 0.8}}]; // Light green color
+      sticky.fills = [{type: 'SOLID', color: {r: 0.8, g: 1, b: 0.8}}]; // Default light green color
       // Create a text sublayer for the sticky note
       await figma.loadFontAsync(sticky.text.fontName)
       // textLayer.characters = msg.text;
@@ -87,42 +94,45 @@ figma.ui.onmessage = async (msg) => {
         const jsonInput = JSON.parse(msg.transcription);
         
         // Validate the JSON structure
-        if (!Array.isArray(jsonInput) || !jsonInput[0] || !jsonInput[0].output || !jsonInput[0].output.notes) {
-          throw new Error('Invalid JSON format. Expected array with format [{"output": {"notes": [...]}}]');
+        if (!Array.isArray(jsonInput) || !jsonInput[0] || !jsonInput[0].output) {
+          throw new Error('Invalid JSON format. Expected array with format [{"output": {...}}]');
         }
 
-        // Get the notes array from the first item's output
-        const notes = jsonInput[0].output.notes;
+        const output = jsonInput[0].output;
+        
+        // Process each category
+        for (const category in output) {
+          const notes = output[category];
+          if (!Array.isArray(notes)) continue;
 
-        // Create sticky notes for each item in the notes array
-        for (const note of notes) {
-          if (!note.text) {
-            console.warn('Skipping note without text content');
-            continue;
+          // Create sticky notes for each item in the category
+          for (const note of notes) {
+            if (!note.text && !note.title) {
+              console.warn('Skipping note without text content');
+              continue;
+            }
+
+            const sticky = figma.createSticky();
+            
+            // Calculate position (you can adjust the spacing as needed)
+            const center = figma.viewport.center;
+            sticky.x = center.x + (Math.random() - 0.5) * 200; // Random offset for x
+            sticky.y = center.y + (Math.random() - 0.5) * 200; // Random offset for y
+            
+            // Set color based on category
+            const color = categoryColors[category] || categoryColors.desired_outcomes; // Default to light green if category not found
+            sticky.fills = [{type: 'SOLID', color: color}];
+            
+            // Set the text
+            await figma.loadFontAsync(sticky.text.fontName);
+            sticky.text.characters = note.title ? `${note.title}\n\n${note.text}` : note.text;
           }
-
-          const sticky = figma.createSticky();
-          const center = figma.viewport.center;
-          
-          // Add some random offset to prevent complete overlap
-          sticky.x = center.x + (Math.random() - 0.5) * 200;
-          sticky.y = center.y + (Math.random() - 0.5) * 200;
-          
-          sticky.fills = [{type: 'SOLID', color: {r: 0.8, g: 1, b: 0.8}}];
-          await figma.loadFontAsync(sticky.text.fontName);
-          sticky.text.characters = note.text;
         }
 
-        figma.notify('Successfully created sticky notes!');
+        figma.notify('Created sticky notes successfully');
       } catch (error) {
         console.error('Error creating post-its:', error);
         figma.notify(`Error: ${error.message}`, { error: true });
-        
-        // Send error back to UI
-        figma.ui.postMessage({
-          type: 'error',
-          message: error.message
-        });
       }
     } else if (msg.type === 'save-transcript') {
       // Save transcript using Figma's client storage
