@@ -1,13 +1,15 @@
 # PALO FigJam Plugin
 
-This project is a FigJam plugin that utilizes AI to enhance user experience within FigJam, providing intelligent assistance and automation features for improved collaboration and productivity.
+This project is a FigJam plugin that provides intelligent sticky note organization and management capabilities, enhancing collaboration and productivity within FigJam workspaces.
 
 ## Features
 
-- AI-powered assistance for FigJam workflows
-- Intelligent content organization and suggestions
-- Enhanced collaboration capabilities
-- Seamless integration with FigJam's native features
+- Smart sticky note creation and management
+- Customizable color-coding for different note categories
+- Base64 encoding support for data handling
+- Tab-based interface with Sticky Notes and Settings sections
+- Automatic saving of transcripts and settings
+- Responsive and user-friendly interface
 
 ## Installation
 
@@ -26,7 +28,9 @@ This project is a FigJam plugin that utilizes AI to enhance user experience with
 
 1. Open FigJam
 2. Access the plugin through the plugins menu
-3. Follow the on-screen instructions to utilize AI-powered features
+3. Use the tab interface to switch between Sticky Notes and Settings
+4. Create and manage sticky notes with automatic categorization
+5. Customize settings according to your preferences
 
 ## Development
 
@@ -42,44 +46,14 @@ This project is a FigJam plugin that utilizes AI to enhance user experience with
    ```
 2. Open FigJam and load the plugin in development mode
 
-## Documentation
-
-Detailed documentation for the AI-powered features and architecture can be found in the `docs/ai-powered` directory. This includes:
-
-- `plugin-description.md`: Overview of the plugin and its features
-- `architecture.md`: Technical architecture details
-- `ai-powered.canvas`: Visual documentation in FigJam
-
 ## Project Structure
 
-The project has the following structure:
+The main project files include:
 
-- .gitignore
-- code.js
-- manifest.json
-- ui.html
-- docs/
-- docs/ai-powered/
-- docs/ai-powered/ai-powered.canvas
-- docs/ai-powered/architecture.md
-- docs/ai-powered/CHANGELOG.md
-- docs/ai-powered/plugin-description.md
-- docs/ai-powered/README.md
-- docs/ai-powered/journals/
-- docs/ai-powered/logseq/
-- docs/ai-powered/logseq/config.edn
-- docs/ai-powered/logseq/custom.css
-- docs/ai-powered/logseq/bak/
-- docs/ai-powered/logseq/bak/logseq/
-- docs/ai-powered/logseq/bak/logseq/config/
-- docs/ai-powered/logseq/bak/logseq/config/2024-12-12T05_46_40.766Z.Desktop.edn
-- docs/ai-powered/logseq/bak/logseq/config/2024-12-12T05_59_25.303Z.Desktop.edn
-- docs/ai-powered/logseq/bak/logseq/config/2024-12-12T05_59_26.102Z.Desktop.edn
-- docs/ai-powered/logseq/bak/logseq/config/2024-12-12T05_59_27.507Z.Desktop.edn
-- docs/ai-powered/pages/
-- docs/ai-powered/pages/contents.md
-- docs/ai-powered/whiteboards/
-- docs/ai-powered/whiteboards/LogSeq.edn
+- `code.js`: Core plugin logic including message handling and sticky note management
+- `ui.html`: Plugin UI implementation with tabs and responsive design
+- `manifest.json`: Plugin configuration and metadata
+- `docs/`: Documentation and project resources
 
 ## Contributing
 
@@ -87,7 +61,7 @@ Contributions are welcome! Please read our contributing guidelines before submit
 
 ## Last Updated
 
-December 16, 2024
+December 17, 2024
 
 ## License
 
