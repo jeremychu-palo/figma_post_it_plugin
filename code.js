@@ -2,31 +2,6 @@ figma.showUI(__html__);
 
 figma.ui.resize(240, 500);
 
-// Base64 encoding function
-function base64Encode(str) {
-  const base64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  let result = '';
-  let i = 0;
-  
-  while (i < str.length) {
-    const char1 = str.charCodeAt(i++);
-    const char2 = i < str.length ? str.charCodeAt(i++) : NaN;
-    const char3 = i < str.length ? str.charCodeAt(i++) : NaN;
-
-    const enc1 = char1 >> 2;
-    const enc2 = ((char1 & 3) << 4) | (char2 >> 4);
-    const enc3 = ((char2 & 15) << 2) | (char3 >> 6);
-    const enc4 = char3 & 63;
-
-    result += base64chars.charAt(enc1) +
-              base64chars.charAt(enc2) +
-              (isNaN(char2) ? '=' : base64chars.charAt(enc3)) +
-              (isNaN(char3) ? '=' : base64chars.charAt(enc4));
-  }
-  
-  return result;
-}
-
 // Color mapping for different categories
 const categoryColors = {
   key_features: { r: 1, g: 0.8, b: 0.8 },     // Light red
