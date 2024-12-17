@@ -1,9 +1,23 @@
 The JSON format for stick notes is:
 
-{
-  "notes": [
-    {"text": "Your first note text"},
-    {"text": "Your second note text"}
-  ]
-}
+[
+    {
+        "output": {
+            "notes": [
+                {
+                    "text": "Track sports events"
+                },
+                {
+                    "text": "View player leaderboard"
+                },
+                {
+                    "text": "View player positions relative to each other"
+                },
+                {
+                    "text": "View latest news updates"
+                }
+            ]
+        }
+    }
+]
 

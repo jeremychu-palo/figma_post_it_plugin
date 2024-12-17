@@ -87,12 +87,15 @@ figma.ui.onmessage = async (msg) => {
         const jsonInput = JSON.parse(msg.transcription);
         
         // Validate the JSON structure
-        if (!jsonInput.notes || !Array.isArray(jsonInput.notes)) {
-          throw new Error('Invalid JSON format. Expected {"notes": [...]}');
+        if (!Array.isArray(jsonInput) || !jsonInput[0] || !jsonInput[0].output || !jsonInput[0].output.notes) {
+          throw new Error('Invalid JSON format. Expected array with format [{"output": {"notes": [...]}}]');
         }
 
+        // Get the notes array from the first item's output
+        const notes = jsonInput[0].output.notes;
+
         // Create sticky notes for each item in the notes array
-        for (const note of jsonInput.notes) {
+        for (const note of notes) {
           if (!note.text) {
             console.warn('Skipping note without text content');
             continue;
