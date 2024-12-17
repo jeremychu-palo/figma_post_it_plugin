@@ -1,4 +1,4 @@
-The JSON format for stick notes is:
+The JSON format for sticky notes is:
 {
     "key_features": [
         {
