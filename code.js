@@ -1,6 +1,6 @@
 figma.showUI(__html__);
 
-figma.ui.resize(240, 600);
+figma.ui.resize(240, 500);
 
 // Base64 encoding function
 function base64Encode(str) {

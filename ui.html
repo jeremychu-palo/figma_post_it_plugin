@@ -5,7 +5,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             padding: 24px;
-            height: 600px;
+            height: 500px;
             overflow-y: auto;
         }
         .tab-container {
@@ -49,10 +49,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         button:hover {
-            background-color: #FFC107;
+            background-color: #FFE169;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        button.clear-button {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+        button.clear-button:hover {
+            background-color: #e0e0e0;
         }
         .icon {
             font-size: 18px;
@@ -96,7 +106,8 @@
             <div class="form-group">
                 <label for="transcription">Post-it Notes JSON</label>
                 <textarea id="transcription" placeholder="Paste your JSON here and hit the Generate button to create Post Its" style="min-height: 150px;" oninput="saveTranscript()"></textarea>
-                <button id="createPostIts"><span class="icon">🔄</span>Generate Post-its from JSON</button>
+                <button id="createPostIts" style="margin-bottom: 8px;"><span class="icon">🔄</span>Generate Post-its from JSON</button>
+                <button onclick="document.getElementById('transcription').value = ''" class="clear-button">Clear JSON</button>
             </div>
         </div>
 
