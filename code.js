@@ -119,6 +119,21 @@ figma.ui.onmessage = async (msg) => {
           // Calculate the x position for this category
           const categoryX = startX + (categoryIndex * categorySpacing);
           
+          // Create category label
+          const categoryLabel = figma.createText();
+          categoryLabel.x = categoryX;
+          categoryLabel.y = figma.viewport.center.y - (notes.length * (noteHeight + noteSpacing) / 2) - 50; // Position above the sticky notes
+          figma.loadFontAsync({ family: "Inter", style: "Bold" }).then(() => {
+            categoryLabel.fontName = { family: "Inter", style: "Bold" };
+            categoryLabel.fontSize = 24;
+            // Convert category to title case and replace underscores with spaces
+            const formattedCategory = category
+              .split('_')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+            categoryLabel.characters = formattedCategory;
+          });
+
           // Calculate total height needed for this category
           const totalHeight = notes.length * (noteHeight + noteSpacing);
           const startY = figma.viewport.center.y - (totalHeight / 2);
