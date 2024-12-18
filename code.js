@@ -37,33 +37,6 @@ figma.ui.onmessage = async (msg) => {
       
       // Zoom into the sticky note
       figma.viewport.scrollAndZoomIntoView([sticky]);
-    } else if (msg.type === 'save-settings') {
-      // Save settings using Figma's client storage
-      await figma.clientStorage.setAsync('serviceUrl', msg.serviceUrl);
-      await figma.clientStorage.setAsync('apiKey', msg.apiKey);
-      await figma.clientStorage.setAsync('postItsEndpoint', msg.postItsEndpoint);
-      await figma.clientStorage.setAsync('username', msg.username);
-      await figma.clientStorage.setAsync('password', msg.password);
-      
-      // Notify UI of success and close
-      figma.notify('Settings saved successfully');
-    } else if (msg.type === 'load-settings') {
-      // Load settings from Figma's client storage
-      const serviceUrl = await figma.clientStorage.getAsync('serviceUrl') || '';
-      const apiKey = await figma.clientStorage.getAsync('apiKey') || '';
-      const postItsEndpoint = await figma.clientStorage.getAsync('postItsEndpoint') || '';
-      const username = await figma.clientStorage.getAsync('username') || '';
-      const password = await figma.clientStorage.getAsync('password') || '';
-      
-      // Send settings back to the UI
-      figma.ui.postMessage({
-        type: 'settings-loaded',
-        serviceUrl,
-        apiKey,
-        postItsEndpoint,
-        username,
-        password
-      });
     } else if (msg.type === 'create-post-its') {
       try {
         // Parse the JSON input
